@@ -13,12 +13,24 @@ import User from "../../db/entities/user.entity";
 import UsernamePasswordInput from "./UsernamePasswordInput";
 import { getConnection } from "typeorm";
 import bcrypt from "bcrypt";
-import { BaseContext } from "koa";
-import { ContextSession } from "koa-session"; 
+import { Context } from "koa";
+import redisStore from "koa-redis";
+import koa from "koa-session";
+import {v4} from "uuid";
 import { validateRegister } from "./validateRegister"; 
+import { sendEmail } from "../../utils/sendEmail";
+
+const FORGET_PASSWORD_PREFIX = 'forgotPassword';
+const saltRounds = 10;
+
+interface Session extends koa.Session {
+  id?: number
+}
 
 export type UserContext = {
-  ctx : BaseContext & { session: ContextSession & { id: number }}
+  ctx : Context,
+  session: Session
+  redis: redisStore.RedisSessionStore
 }
 
 @ObjectType()
@@ -41,28 +53,29 @@ class UserResponse {
 @Resolver(User)
 export class UserResolver {
   @FieldResolver(() => String)
-  email(@Root() user: User, @Ctx() { ctx }: UserContext) {
-    if (ctx.session.id === user.id) {
+  email(@Root() user: User, @Ctx() { ctx, session }: UserContext) {
+    if (session.id  === user.id) {
       return user.email;
     }
     return "";
   }
-
+  // query profile
   @Query(() => User, { nullable: true })
-  me(@Ctx() { ctx }: UserContext) {
+  me(@Ctx() { ctx, session }: UserContext) {
+    // console.log(session);
     // you are not logged in
-    if (!ctx.session.id) {
+    if (!session.id) {
       return null;
     }
 
-    return User.findOne(ctx.session.id);
+    return User.findOne(session.id);
   }
+  // account register 
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UsernamePasswordInput,
-    @Ctx() { ctx }: UserContext
-  ): Promise<UserResponse> { 
-    const saltRounds = 10; 
+    @Ctx() { ctx, session }: UserContext
+  ): Promise<UserResponse> {  
     let user;
     // validate user information are corect
     const errors = validateRegister(options);
@@ -107,22 +120,24 @@ export class UserResolver {
     } 
     
     // console.log(ctx);
-    ctx.session.id = user.id;
+    session.id = user.id;
 
     return { user };
   }
-
+  // acount login
   @Mutation(() => UserResponse)
   async login(
     @Arg("usernameOrEmail") usernameOrEmail: string,
-    @Arg("password") password: string,    @Ctx() { ctx }: UserContext
+    @Arg("password") password: string,    @Ctx() { ctx, redis, session }: UserContext
   ): Promise<UserResponse> {
+    const { id } = session;
+    // console.log(id);
     const user = await User.findOne(
       usernameOrEmail.includes("@")
         ? { where: { email: usernameOrEmail } }
         : { where: { username: usernameOrEmail } }
     );
-    if (!user) {
+    if (!user) { 
       return {
         errors: [
           {
@@ -134,7 +149,7 @@ export class UserResolver {
     }
 
     const valid = bcrypt.compareSync(password, user.password);
-    if (!valid) {
+    if (!valid) { 
       return {
         errors: [
           {
@@ -144,11 +159,106 @@ export class UserResolver {
         ],
       };
     }
-
-    ctx.session.id = user.id;
+    // console.log(session)
+    session.id = user.id;
 
     return {
       user,
     };
+  }
+  //forgot password
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() {redis} : UserContext
+  ): Promise<boolean> {
+    const user = await User.findOne({ where: { email } });
+    if (!user) { 
+      return  false;
+    }
+    
+    const token = v4();
+
+    await redis.set(
+      FORGET_PASSWORD_PREFIX + token,
+      [user.id],
+      1000 * 60 * 60 * 24 * 1,
+       {
+        changed: false,
+        rolling: true
+      }
+    ); // 1 days expire 
+    const userId = await redis.get(FORGET_PASSWORD_PREFIX + token, 1000 * 60 * 60 * 24 * 1, {rolling:true});
+    console.log('client_id', userId);
+    try {
+      await sendEmail(
+        email,
+        `Click to <a href="http://localhost:3000/change-password/${token}">reset your password</a>`
+      );
+    } catch (error) {
+      console.log(error);
+    }
+
+    return true;
+  }
+  // confirm password
+  @Mutation(()=>UserResponse)
+  async changePassword(
+    @Arg("token") token: string,
+    @Arg("newPassword") newPassword: string,
+    @Ctx() { redis, ctx, session } : UserContext
+  ): Promise<UserResponse | null> {
+    if (newPassword.length <= 3) {
+      return {
+        errors: [
+          {
+            field: "newPassword",
+            message: "Length must be greater than 4",
+          },
+        ],
+      };
+    }
+
+    const key = FORGET_PASSWORD_PREFIX + token; 
+    const userId = await redis.get(key, undefined, {rolling: undefined});
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "token expired",
+          },
+        ],
+      };
+    }
+
+    const userIdNum = parseInt(userId);
+    const user = await User.findOne(userIdNum);
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "user no longer exists",
+          },
+        ],
+      };
+    }
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+    await User.update(
+      { id: userIdNum },
+      {
+        password: hashedPassword,
+      }
+    );
+
+    await redis.destroy(key);
+
+    // log in user after change password
+    session.id = user.id;
+
+    return { user };
   }
 }
