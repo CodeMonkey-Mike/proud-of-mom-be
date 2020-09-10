@@ -21,4 +21,4 @@ RUN yarn run tsc
 ENV SERVER_PORT 4000
 EXPOSE 4000
 
-CMD ["node", "dist/server"]
+CMD ["node", "dist/server.js"]
