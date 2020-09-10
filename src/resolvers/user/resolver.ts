@@ -15,7 +15,7 @@ import { getConnection } from "typeorm";
 import bcrypt from "bcrypt";
 import { Context } from "koa";
 import redisStore from "koa-redis";
-import koa from "koa-session";
+import koa, { ContextSession } from "koa-session";
 import {v4} from "uuid";
 import { validateRegister } from "./validateRegister"; 
 import { sendEmail } from "../../utils/sendEmail";
@@ -62,7 +62,7 @@ export class UserResolver {
   // query profile
   @Query(() => User, { nullable: true })
   me(@Ctx() { ctx, session }: UserContext) {
-    // console.log(session);
+    console.log(session);
     // you are not logged in
     if (!session.id) {
       return null;
@@ -131,7 +131,7 @@ export class UserResolver {
     @Arg("password") password: string,    @Ctx() { ctx, redis, session }: UserContext
   ): Promise<UserResponse> {
     const { id } = session;
-    // console.log(id);
+    console.log(id);
     const user = await User.findOne(
       usernameOrEmail.includes("@")
         ? { where: { email: usernameOrEmail } }
