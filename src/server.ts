@@ -15,8 +15,7 @@ import { logger } from "./utils/logger";
 
 const app = new Koa();
 const path = "/graphql";
-const PORT = process.env.HTTP_PORT || 4000;
-const DOMAIN = process.env.NODE === 'production' ? 'http://www.proudofmom.com' : 'http://localhost';
+const PORT = process.env.HTTP_PORT || 4000; 
 app.keys = [process.env.SESSION_SECRET||'qowiueojwojfalksdjoqiwueo'];
 // const redis = redisStore({
 //   url: process.env.REDIS_URL
@@ -61,7 +60,8 @@ const main = async () => {
     });
     apolloServer.applyMiddleware({ app, path, bodyParserConfig: true });  
     app.listen(PORT, () => {
-      console.log(`🚀 started ${DOMAIN}:${PORT}${path}`);
+      const HOST = app.context.host;
+      console.log(`🚀 started ${HOST}:${PORT}${path}`);
     });
   } catch (error) {
     console.log(error);
