@@ -2,9 +2,10 @@ import "reflect-metadata";
 import dotenv from "dotenv";
 dotenv.config();
 import Koa, { Context } from "koa";
-import session, { ContextSession } from "koa-session";
+// import session, { ContextSession } from "koa-session";
+import session from "koa-session";
 import cors from "@koa/cors";
-import redisStore from "koa-redis";
+// import redisStore from "koa-redis";
 import { ApolloServer } from "apollo-server-koa";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user/resolver";
@@ -15,14 +16,15 @@ import { logger } from "./utils/logger";
 const app = new Koa();
 const path = "/graphql";
 const PORT = process.env.HTTP_PORT || 4000;
+const DOMAIN = process.env.NODE === 'production' ? 'http://www.proudofmom.com' : 'http://localhost';
 app.keys = [process.env.SESSION_SECRET||'qowiueojwojfalksdjoqiwueo'];
-const redis = redisStore({
-  url: process.env.REDIS_URL
-})
+// const redis = redisStore({
+//   url: process.env.REDIS_URL
+// })
 const SESSION_CONFIG:any = {
   key: 'pom:sess',
   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  store: redis,
+  // store: redis,
   overwrite: true, 
   httpOnly: true,
   signed: true, 
@@ -54,12 +56,12 @@ const main = async () => {
       context: ({ctx}: Context) => ({
         ctx,
         session: ctx.session,
-        redis
+        // redis
       }),
     });
     apolloServer.applyMiddleware({ app, path, bodyParserConfig: true });  
     app.listen(PORT, () => {
-      console.log(`🚀 started http://localhost:${PORT}${path}`);
+      console.log(`🚀 started ${DOMAIN}:${PORT}${path}`);
     });
   } catch (error) {
     console.log(error);

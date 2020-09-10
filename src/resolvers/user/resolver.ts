@@ -179,17 +179,17 @@ export class UserResolver {
     
     const token = v4();
 
-    await redis.set(
-      FORGET_PASSWORD_PREFIX + token,
-      [user.id],
-      1000 * 60 * 60 * 24 * 1,
-       {
-        changed: false,
-        rolling: true
-      }
-    ); // 1 days expire 
-    const userId = await redis.get(FORGET_PASSWORD_PREFIX + token, 1000 * 60 * 60 * 24 * 1, {rolling:true});
-    console.log('client_id', userId);
+    // await redis.set(
+    //   FORGET_PASSWORD_PREFIX + token,
+    //   [user.id],
+    //   1000 * 60 * 60 * 24 * 1,
+    //    {
+    //     changed: false,
+    //     rolling: true
+    //   }
+    // ); // 1 days expire 
+    // const userId = await redis.get(FORGET_PASSWORD_PREFIX + token, 1000 * 60 * 60 * 24 * 1, {rolling:true});
+    // console.log('client_id', userId);
     try {
       await sendEmail(
         email,
