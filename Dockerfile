@@ -16,7 +16,7 @@ COPY src ./src/
 # Installing Dependencies and build
 
 RUN yarn install
-RUN yarn run tsc
+RUN yarn build
 
 ENV SERVER_PORT 4000
 EXPOSE 4000

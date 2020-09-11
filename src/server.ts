@@ -35,8 +35,8 @@ const SESSION_CONFIG:any = {
 
 const main = async () => { 
   try {
-    const connection = await createConnection(config);
-    await connection.runMigrations();
+    // const connection = await createConnection(config);
+    // await connection.runMigrations();
     console.log("Migration done!");
     const schema = await buildSchema({
       resolvers: [UserResolver],
@@ -59,8 +59,8 @@ const main = async () => {
       }),
     });
     apolloServer.applyMiddleware({ app, path, bodyParserConfig: true });  
-    app.listen(PORT, () => {
-      const HOST = app.context.host;
+    app.listen(PORT, () => { 
+      const HOST = app.env === 'development' ? 'http://localhost' : 'http://proudofmom.com';
       console.log(`🚀 started ${HOST}:${PORT}${path}`);
     });
   } catch (error) {
