@@ -1,21 +1,22 @@
-FROM node:lts-slim
+# Use the base App Engine Docker image, based on Ubuntu 16.0.4.
+FROM node:12-slim
 
 # Creating app dir.
 
-WORKDIR /usr/netishop-services
+WORKDIR /usr/src/services
 
 # Copy files
 
-COPY package.json .
-COPY tsconfig.json .
-COPY yarn.lock .
+COPY package.json ./
+COPY tsconfig.json ./
+COPY yarn.lock ./
 COPY src ./src/
 
 #COPY . .
 
 # Installing Dependencies and build
 
-RUN yarn install
+RUN yarn install --only=production
 RUN yarn build
 
 ENV SERVER_PORT 4000
