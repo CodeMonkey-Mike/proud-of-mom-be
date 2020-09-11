@@ -8,8 +8,5 @@ steps:
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
     args: ['run', 'deploy', 'proudofmom', '--image', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER', '--port', '4000', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
-  # Deploy container image to add cloud SQL
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['run', 'services', 'update', 'proudofmom', '--add-cloudsql-instances', 'rock-fountain-288922:us-central1:proudofmomps']
 images:
 - gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER
