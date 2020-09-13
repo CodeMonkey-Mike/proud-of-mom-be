@@ -3,13 +3,14 @@ FROM node:12-slim
 
 # Creating app dir.
 
-WORKDIR /usr/src/services
+WORKDIR /usr/proudofmom/services
 
 # Copy files
 
 COPY package.json ./
 COPY tsconfig.json ./
 COPY yarn.lock ./
+# COPY .env ./
 COPY src ./src/
 
 #COPY . .
