@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 
 @ObjectType()
-@Entity({ name: "user_table" })
+@Entity({ name: "user" })
 export default class User extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
