@@ -7,6 +7,6 @@ steps:
     args: ['push', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER']
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['run', 'deploy', 'proudofmom', '--image', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER', '--port', '4000', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
+    args: ['run', 'deploy', '$_PREFIX-proudofmom-be', '--image', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER', '--port', '4000', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
 images:
 - gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER
