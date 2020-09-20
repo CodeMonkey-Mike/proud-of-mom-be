@@ -5,9 +5,12 @@ steps:
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER']
+  # Delete mapping domain
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['beta', 'run','domain-mappings', 'delete', '--domain', '$_API_PREFIX.proudofmom.com', '--region', 'us-central1', '--platform', 'managed']
   # Create mapping domain
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['beta', 'run','domain-mappings','create','--service', '$_PREFIX-proudofmom-be', '--domain', '$_API_PREFIX.proudofmom.com', '--force-override', '--region', 'us-central1', '--platform', 'managed']
+    args: ['beta', 'run','domain-mappings','create','--service', '$_PREFIX-proudofmom-be', '--domain', '$_API_PREFIX.proudofmom.com', '--region', 'us-central1', '--platform', 'managed']
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
     args: ['run', 'deploy', '$_PREFIX-proudofmom-be', '--image', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER', '--port', '4000', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
