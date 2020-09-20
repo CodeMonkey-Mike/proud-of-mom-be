@@ -5,11 +5,11 @@ steps:
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER']
-  # Deploy container image to Cloud Run
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['run', 'deploy', '$_PREFIX-proudofmom-be', '--image', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER', '--port', '4000', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
   # Create mapping domain
   - name: 'gcr.io/cloud-builders/gcloud'
     args: ['beta', 'run','domain-mappings','create','--service', '$_PREFIX-proudofmom-be', '--domain', '$_API_PREFIX.proudofmom.com', '--force-override', '--region', 'us-central1', '--platform', 'managed']
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['run', 'deploy', '$_PREFIX-proudofmom-be', '--image', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER', '--port', '4000', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
 images:
 - gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER
