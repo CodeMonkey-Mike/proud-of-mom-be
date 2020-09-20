@@ -3,7 +3,7 @@ import MigrationUtil from '../../utils/migrationUtil';
 
 export class CreateUserTable1598548264941 implements MigrationInterface {
   private static readonly table = new Table({
-    name: 'user_table',
+    name: 'user',
     columns: [
       ...MigrationUtil.getIDColumn(),
       MigrationUtil.getVarCharColumn({ name: 'username' }),
