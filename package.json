@@ -6,7 +6,7 @@
     "node": ">=12.x"
   },
   "scripts": {
-    "dev": "ts-node src/server.ts",
+    "dev": "NODE_ENV=development ts-node src/server.ts",
     "build": "NODE_ENV=production tsc --project .",
     "start": "ts-node dist/server.js",
     "migration:generate": "typeorm migration:create -n UserMigration",
