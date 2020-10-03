@@ -37,7 +37,7 @@ cd proud-of-mom-be
 
 ## III. Set-up local database
 
->Do you familiar with Postgress? No? Don't worry, in this step. It guide you how to set-up a postgresql into local system and get start with POM project.
+>Do you familiar with Postgress? No? Don't worry, in this step. It guides you on how to set-up a PostgreSQL into the local system and gets start with the POM project.
 
 ### Initialize Postgresql
 
@@ -51,7 +51,7 @@ a. BY Postgres.app
 
 b. By Homebrew
 
-Copy command line below paste it into your terminal window.
+Copy the command line below pastes it into your terminal window.
 
 ```
 brew cask install postgres
@@ -119,7 +119,7 @@ TYPEORM_PASSWORD = pom1234
 
 Continue with step [Initialize databse](#initialize-databse)
 
-> Warning: if use -auto tag and the user or database already existed, this step will delete those info and we need to initial development data again.
+> Warning: if using -auto tag and the user or database already existed, this step will delete that info and we need to initial development data again.
 
 2. Manual script set-up with step by step:
 
@@ -164,7 +164,7 @@ echo "CREATE DATABASE <DB_NAME> ENCODING = 'UTF8';" | psql -U postgres -w
 
 3. Grant a permission to the specific user.
 
-In this step, the database only want a specific user able to access with specific permission.
+In this step, the database only wants a user able to access.
 
 ```
 // Assign permission to the user
@@ -175,7 +175,7 @@ echo "REVOKE ALL PRIVILEGES ON DATABASE <DB_NAME> FROM public;" | psql -U postgr
 
 ```
 
-When finished the steps above, this time we need to initial data from deveopment evironment that provide by project owner.
+When finished the steps above, this time we need to initial data from the development environment that provided by the project owner.
 
 Continue with step [Initialize databse](#initialize-databse)
 
@@ -183,7 +183,7 @@ Continue with step [Initialize databse](#initialize-databse)
 
 1. Download sample data
 
-Go to Gcloud UI to download the developement data:
+Go to Gcloud UI to download the development data:
 
 - [Download link](https://console.cloud.google.com/storage/browser/bk_proud_of_mom;tab=objects?forceOnBucketsSortingFiltering=false&cloudshell=false&project=rock-fountain-288922&prefix=&forceOnObjectsSortingFiltering=false)
 
