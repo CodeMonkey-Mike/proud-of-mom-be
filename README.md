@@ -37,7 +37,7 @@ cd proud-of-mom-be
 
 ## III. Set-up local database
 
->Do you familiar with Postgress? No? Don't worry, in this step. It guide you how to set-up a postgresql into local system and get start with POM project.
+>Do you familiar with Postgress? No? Don't worry, in this step. It guides you on how to set-up a PostgreSQL into the local system and gets start with the POM project.
 
 ### Initialize Postgresql
 
@@ -51,7 +51,7 @@ a. BY Postgres.app
 
 b. By Homebrew
 
-Copy command line below paste it into your terminal window.
+Copy the command line below pastes it into your terminal window.
 
 ```
 brew cask install postgres
@@ -90,12 +90,12 @@ brew services stop postgresql
 
 #### A. Use auto script
 
-We prepeared  a auto script to initial database under local system with few steps.
+We prepeared a auto script to initial database under local system with a few steps.
 
 ```
 
-//Firstly, open terminal window.
-cd /project/path/script/
+// Firstly, open terminal window. 
+cd /project/path/scripts/
 
 ```
 
@@ -103,7 +103,7 @@ cd /project/path/script/
 
 ```
 // -auto tag will be used the default database information
-sh locadb.sh -auto
+sh localdb.sh -auto
 ```
 
 Wait until the process finished. 
@@ -117,21 +117,21 @@ TYPEORM_PASSWORD = pom1234
 
 ```
 
-Continue with step [Initialize databse](#initialize-databse)
+Continue with step [Initialize database](#initialize-databse)
 
-> Warning: if use -auto tag and the user or database already existed, this step will delete those info and we need to initial development data again.
+> Warning: if using -auto tag and the user or database already existed, this step will delete that info and we need to initial development data again.
 
 2. Manual script set-up with step by step:
 
 ```
 // This script will need your time to explore and might have many issues.
 // Run the script without -auto tag
-sh locadb.sh
+sh localdb.sh
 
 ```
 
 After the process finished.
-Continue with step [Initialize databse](#initialize-databse)
+Continue with step [Initialize database](#initialize-databse)
 
 #### B. Manually
 
@@ -164,7 +164,7 @@ echo "CREATE DATABASE <DB_NAME> ENCODING = 'UTF8';" | psql -U postgres -w
 
 3. Grant a permission to the specific user.
 
-In this step, the database only want a specific user able to access with specific permission.
+In this step, the database only wants a user able to access.
 
 ```
 // Assign permission to the user
@@ -175,15 +175,15 @@ echo "REVOKE ALL PRIVILEGES ON DATABASE <DB_NAME> FROM public;" | psql -U postgr
 
 ```
 
-When finished the steps above, this time we need to initial data from deveopment evironment that provide by project owner.
+When finished the steps above, this time we need to initial data from the development environment that provided by the project owner.
 
-Continue with step [Initialize databse](#initialize-databse)
+Continue with step [Initialize database](#initialize-databse)
 
-### Initialize databse
+### Initialize database
 
 1. Download sample data
 
-Go to Gcloud UI to download the developement data:
+Go to console google UI to download the development data:
 
 - [Download link](https://console.cloud.google.com/storage/browser/bk_proud_of_mom;tab=objects?forceOnBucketsSortingFiltering=false&cloudshell=false&project=rock-fountain-288922&prefix=&forceOnObjectsSortingFiltering=false)
 
