@@ -19,8 +19,8 @@ const config: ConnectionOptions = {
   password: PASSWORD,
   database: DATABASE,
   logging: true,
-  entities: [ENTITIES || 'src/db/entities/*.entity{.ts,.js}'],
-  migrations: [MIGRATIONS || 'src/db/migrations/*{.ts,.js}'],
+  entities: [ENTITIES || ''],
+  migrations: [MIGRATIONS || ''],
   cli: {
     migrationsDir: path.join(__dirname, "./" + MIGRATIONS_DIR),
   },

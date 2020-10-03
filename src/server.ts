@@ -5,7 +5,7 @@ import Koa, { Context } from "koa";
 // import session, { ContextSession } from "koa-session";
 import session from "koa-session";
 import cors from "@koa/cors";
-// import redisStore from "koa-redis";
+import redisStore from "koa-redis";
 import { ApolloServer } from "apollo-server-koa";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user/resolver";
@@ -17,13 +17,13 @@ const app = new Koa();
 const path = "/graphql";
 const PORT = process.env.HTTP_PORT || 4000; 
 app.keys = [process.env.SESSION_SECRET||'qowiueojwojfalksdjoqiwueo'];
-// const redis = redisStore({
-//   url: process.env.REDIS_URL
-// })
+const redis = redisStore({
+  url: process.env.REDIS_URL
+})
 const SESSION_CONFIG:any = {
   key: 'pom:sess',
   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  // store: redis,
+  store: redis,
   overwrite: true, 
   httpOnly: true,
   signed: true, 
@@ -55,7 +55,7 @@ const main = async () => {
       context: ({ctx}: Context) => ({
         ctx,
         session: ctx.session,
-        // redis
+        redis
       }),
     });
     apolloServer.applyMiddleware({ app, path, bodyParserConfig: true });  
