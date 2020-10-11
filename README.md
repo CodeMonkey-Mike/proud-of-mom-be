@@ -1,6 +1,6 @@
 # Proud of Mom
 
-## Tech Stack
+# Tech Stack
 
 - [x] [KOA](https://github.com/koajs/koa)
 - [x] [koa-bodyparser](https://github.com/koajs/bodyparser)
@@ -13,43 +13,56 @@
 - [x] [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
 - [x] [Dotenv](https://github.com/motdotla/dotenv)
 
-## Provisioning
+# Provisioning
 
 - OS system: MacOS
 - Typescript: 3.9.x
 
-## I. Get started!
+> Window / Ubuntu: TBD
+
+# Development setup
 
 This is a guide aka a part of project development process under local system.
+And this guide will help us set-up step by step and run the backend service correctly.
 
-- This guide will help us set-up step by step and run backend service correctly.
+<b>Contents:</b>
 
-## II. Init source code
+- [Step 1: Initialize source code](#step-1-initialize-source-code)
+- [Step 2: Setup local database](#step-2-setup-local-database)
+  - [2.1 Install PostgresQL](#21-install-postgresql)
+    - [2.1.1 Use Postgres.app](#211-use-postgresapp)
+    - [2.1.2 Use Homebrew](#212-use-homebrew)
+  - [2.2 Create user and database name](#22-create-user-and-database-name) 
+    - [2.2.1 Automatically](#221-automatically)
+    - [2.2.1 Manually](#222-manually)
+- [Step 3: Initialize development data](#step-3-initialize-development-data)
+  - [3.1 Download sample data](#31-download-sample-data)
+  - [3.2 Import data into local database](#32-import-data-into-local-database)
+  - [3.3 TypeORM & PostgresQL configuration](#33-typeorm-postgresql-configuration)
+- [Step 4: Start development](#step-4-start-development)
 
-- Clone this repository to local machine:
+## Step 1: Initialize source code
+
+Clone this repository to local machine:
 
 ```
-
 git clone https://github.com/CodeMonkey-Mike/proud-of-mom-be.git
 cd proud-of-mom-be
-
 ```
 
-## III. Set-up local database
+## Step 2: Setup local database
 
->Do you familiar with Postgress? No? Don't worry, in this step. It guides you on how to set-up a PostgreSQL into the local system and gets start with the POM project.
+> Did you familiar with PostgreSQL yet? Don't worry, in this step. It guides you on how to set-up a PostgreSQL into the local system and gets start with the POM project.
 
-### Initialize Postgresql
+### 2.1 Install PostgresQL
 
-#### Install Postgres
+Make sure you already installed PostgresQL under your local, if not please refer to the ways below:
 
-- Make sure you already installed Postgres under your local or use the ways below:
+#### 2.1.1 Use Postgres.app
 
-a. BY Postgres.app
+This one of popular GUI of Postgres. [Download](https://postgresapp.com/downloads.html)
 
-- [Download link](https://postgresapp.com/downloads.html)
-
-b. By Homebrew
+#### 2.1.2 Use Homebrew
 
 Copy the command line below pastes it into your terminal window.
 
@@ -57,7 +70,7 @@ Copy the command line below pastes it into your terminal window.
 brew cask install postgres
 ```
 
-Waiting until the proccess finished and start the postgres server:
+Waiting until the proccess finished and start the PostgreSQL server:
 
 - To start manually:
 
@@ -83,150 +96,127 @@ brew services start postgresql
 brew services stop postgresql
 ```
 
-### Create user and database name
+### 2.2 Create user and database name
 
-- Check out the .env.example in the root of repository.
-- Create .env and copy content of .env.example into .env file.
+Check out the `.env.example` file in the root of repository.
+Then create a new `.env` file and copy content of `.env.example` into `.env` file.
 
-#### A. Use auto script
+There are 2 ways to create database information:
 
-We prepeared a auto script to initial database under local system with a few steps.
+#### 2.2.1 Automatically
+
+We prepared an auto script for the initial database under the local system only with a few steps.
 
 ```
-
-// Firstly, open terminal window. 
+// Firstly, open terminal window, then place to scripts directory
 cd /project/path/scripts/
-
 ```
 
-1. For an auto please use (recommended):
+For automation please use (recommended):
 
 ```
-// -auto tag will be used the default database information
 sh localdb.sh -auto
 ```
+`-auto` tag will be used the default database information that stored in `.env` [file above](#22-create-user-and-database-name).
 
 Wait until the process finished. 
 
 ```
-
-// Copy and replcae this info inside .env file
-TYPEORM_DATABASE = pom
-TYPEORM_USERNAME = pomusr
-TYPEORM_PASSWORD = pom1234
-
+// this info will show when the process finished
+TYPEORM_DATABASE = xxxxx
+TYPEORM_USERNAME = xxxxx
+TYPEORM_PASSWORD = xxxxx
 ```
 
-Continue with step [Initialize database](#initialize-databse)
+Otherwise, if we don't input `-auto` tag, a manual process will be activated.
 
-> Warning: if using -auto tag and the user or database already existed, this step will delete that info and we need to initial development data again.
+> Hint: if using -auto tag and the user or database already existed, this step will delete that info then we need to initial development data again.
 
-2. Manual script set-up with step by step:
+Next step [Initialize development data](#step-3-initialize-development-data).
 
-```
-// This script will need your time to explore and might have many issues.
-// Run the script without -auto tag
-sh localdb.sh
+#### 2.2.2 Manually
 
-```
-
-After the process finished.
-Continue with step [Initialize database](#initialize-databse)
-
-#### B. Manually
-
-1. Create user
+<b>A. Create a new user</b>
 
 This is step create specific user for the database of project manually.
 
 ```
-
 // Change <USER_NAME> with your own user name.
 // Change <USER_PWD> with your own user password.
 
 echo "CREATE USER <USER_NAME> WITH PASSWORD '<USER_PWD>'" | psql -U postgres -w
-
 ```
 
-2. Create database
+<b>B. Create a new database</b>
 
-- After created the user of database, next step to create a database and assign owner of database name by the user above.
+After created the user of database, next step create a database and assign the owner of database name by the user above.
 
 ```
-
-// Change <DB_NAME> with your own user password.
+// Change <DB_NAME> with the name you wish.
 echo "CREATE DATABASE <DB_NAME> ENCODING = 'UTF8';" | psql -U postgres -w
-
 ```
 
-> Hint: if see `"The user <USER_NAME or DB_NAME> already exists."` We need delete it and create a new one then init the develop data again.
-
-
-3. Grant a permission to the specific user.
-
-In this step, the database only wants a user able to access.
+When see the message `"The user <USER_NAME or DB_NAME> already exists."`. We need to delete it and create a new one then initiate the development data again., refer to command below:
 
 ```
-// Assign permission to the user
+// delete a database
+echo "DROP DATABASE <DB_NAME>;" | psql -U postgres -w
+
+// delete a user
+echo "DROP USER <USER_NAME>;" | psql -U postgres -w
+```
+
+
+<b>C. Grant privileges to the specific user</b>
+
+In this step, the database only wants one user able to access.
+
+```
+// Assign privileges to the user
 echo "GRANT ALL PRIVILEGES ON DATABASE <DB_NAME> TO <USER_NAME>;" | psql -U postgres -w
 
 // Revoke public permission. This public default when create any database under local.
 echo "REVOKE ALL PRIVILEGES ON DATABASE <DB_NAME> FROM public;" | psql -U postgres -w
-
 ```
 
-When finished the steps above, this time we need to initial data from the development environment that provided by the project owner.
+When finished the steps above, this time we need to initiate data from the development environment that provided by the project owner.
 
-Continue with step [Initialize database](#initialize-databse)
+Next step [Initialize development data](#step-3-initialize-development-data).
 
-### Initialize database
+## Step 3: Initialize development data
 
-1. Download sample data
+### 3.1 Download sample data
 
-Go to console google UI to download the development data:
+Go to console google UI to download the development data: [Download link](https://console.cloud.google.com/storage/browser/bk_proud_of_mom;tab=objects?forceOnBucketsSortingFiltering=false&cloudshell=false&project=rock-fountain-288922&prefix=&forceOnObjectsSortingFiltering=false)
 
-- [Download link](https://console.cloud.google.com/storage/browser/bk_proud_of_mom;tab=objects?forceOnBucketsSortingFiltering=false&cloudshell=false&project=rock-fountain-288922&prefix=&forceOnObjectsSortingFiltering=false)
+### 3.2 Import data into local database
 
-2. Import into local database
-
-Place the backup file above into `scripts` folder inside the repository folder, now run the script to sync the data have just downloaded int local database.
+Move the backup file above into `scripts` folder inside the repository directory, now run the script to sync the data have just downloaded into local database.
 
 ```
-
 // overwrite <USER_NAME> and <DB_NAME>
 psql -U <USER_NAME> -d <DB_NAME> < proudofmomps_dev.sql
 
 // remove the backup file after sync successful
 rm proudofmomps_dev.sql
-
 ```
 
 
-3. TypeORM & Postgres configuration
+### 3.3 TypeORM & PostgresQL configuration
 
-- Based on steps above, copy the info of database and user that created into `.env` file.
+Based on step above, the configuration info are auto pickup from `.env` file.
 
-Now, ready to start backend service. Use `start developement` command step below. When the server started check it out with:
+Now, ready to start backend service. Use [start development](#start-development) command below. When the server starting check it out with:
 
 ``` 
 http://localhost:4000/grapql
-
 ```
 
-## V. Available Scripts
+## Step 4: Start development
 
-1. Install node modules
+```
+yarn && yarn dev
+```
 
-`yarn`
-
-2. Start development
-
-`yarn dev`
-
-3. Production build
-
-`yarn build`
-
-4. Production start
-
-`yarn start`
+> This file keep up to date.
+> Latest updated: <b>2020-10-11</b>
