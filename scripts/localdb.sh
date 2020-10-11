@@ -1,7 +1,14 @@
 #!/bin/sh
-DB_DEFAULT_NAME='pom'
-USER_DEFAULT_NAME='pomusr'
-USER_DEFAULT_PWD='pom1234'
+read_var() {
+  local ENV_FILE='../.env'
+  local VAR=$(grep $1 "$ENV_FILE" | xargs)
+  IFS="=" read -ra VAR <<< "$VAR"
+  echo ${VAR[1]}
+}
+ 
+DB_DEFAULT_NAME=$(read_var TYPEORM_DATABASE)
+USER_DEFAULT_NAME=$(read_var TYPEORM_USERNAME)
+USER_DEFAULT_PWD=$(read_var TYPEORM_PASSWORD)
 
 create_helper_db () {
   WHOAMI=$(id -un)
@@ -43,7 +50,7 @@ auto() {
     echo "CREATE DATABASE $DB_DEFAULT_NAME ENCODING = 'UTF8';" | psql -U postgres -w
     echo "GRANT ALL PRIVILEGES ON DATABASE $DB_DEFAULT_NAME TO $USER_DEFAULT_NAME;" | psql -U postgres -w
     echo "REVOKE ALL PRIVILEGES ON DATABASE $DB_DEFAULT_NAME FROM public;" | psql -U postgres -w
-    echo " Your database info. Please copy and replace this info in .env file"
+    echo " Your database info:"
     echo "
     TYPEORM_DATABASE = $DB_DEFAULT_NAME
     TYPEORM_USERNAME = $USER_DEFAULT_NAME
