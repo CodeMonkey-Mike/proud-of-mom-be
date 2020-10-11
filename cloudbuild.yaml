@@ -6,8 +6,8 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/proudofmom-be:$_PR_NUMBER']
   # Delete mapping domain
-  # - name: 'gcr.io/cloud-builders/gcloud'
-  #   args: ['beta', 'run','domain-mappings', 'delete', '--domain', '$_API_PREFIX.proudofmom.com', '--region', 'us-central1', '--platform', 'managed']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['beta', 'run','domain-mappings', 'delete', '--domain', '$_API_PREFIX.proudofmom.com', '--region', 'us-central1', '--platform', 'managed']
   # Create mapping domain
   - name: 'gcr.io/cloud-builders/gcloud'
     args: ['beta', 'run','domain-mappings','create','--service', '$_PREFIX-proudofmom-be', '--domain', '$_API_PREFIX.proudofmom.com', '--region', 'us-central1', '--platform', 'managed']
