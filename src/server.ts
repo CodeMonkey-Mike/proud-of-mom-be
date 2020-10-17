@@ -21,6 +21,7 @@ app.keys = [process.env.SESSION_SECRET||'qowiueojwojfalksdjoqiwueo'];
 //   url: process.env.REDIS_URL
 // })
 const SESSION_CONFIG:any = {
+  name: 'sid',
   key: 'pom:sess',
   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
   // store: redis,
@@ -36,6 +37,7 @@ const SESSION_CONFIG:any = {
 const main = async () => { 
   try {
     const connection = await createConnection(config);
+    // await connection.dropDatabase(); // only test under local env
     await connection.runMigrations();
     console.log("DB connecting!");
     const schema = await buildSchema({
