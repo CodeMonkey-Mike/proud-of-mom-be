@@ -108,6 +108,7 @@ export class UserResolver {
           .values({
             username: options.username,
             email: options.email,
+            role_id: 2,
             password: hashedPassword,
           })
           .returning("*")
@@ -130,8 +131,6 @@ export class UserResolver {
     @Arg("usernameOrEmail") usernameOrEmail: string,
     @Arg("password") password: string,    @Ctx() { ctx, redis, session }: UserContext
   ): Promise<UserResponse> {
-    const { id } = session;
-    console.log(id);
     const user = await User.findOne(
       usernameOrEmail.includes("@")
         ? { where: { email: usernameOrEmail } }
@@ -147,7 +146,7 @@ export class UserResolver {
         ],
       };
     }
-
+    console.log(ctx.request.href);
     const valid = bcrypt.compareSync(password, user.password);
     if (!valid) { 
       return {

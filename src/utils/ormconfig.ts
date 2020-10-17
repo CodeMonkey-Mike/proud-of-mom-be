@@ -18,6 +18,7 @@ const config: ConnectionOptions = {
   username: USERNAME,
   password: PASSWORD,
   database: DATABASE,
+  cache: true,
   logging: true,
   entities: [ENTITIES || ''],
   migrations: [MIGRATIONS || ''],
