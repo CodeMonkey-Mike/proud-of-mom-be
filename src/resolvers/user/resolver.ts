@@ -9,28 +9,25 @@ import {
   FieldResolver,
   Root,
 } from "type-graphql";
-import User from "../../db/entities/user.entity";
 import UsernamePasswordInput from "./UsernamePasswordInput";
 import { getConnection } from "typeorm";
 import bcrypt from "bcrypt";
 import { Context } from "koa";
 import redisStore from "koa-redis";
-import koa, { ContextSession } from "koa-session";
+import { Session } from "koa-session";
 import {v4} from "uuid";
 import { validateRegister } from "./validateRegister"; 
 import { sendEmail } from "../../utils/sendEmail";
+import User from "../../db/entities/user.entity";
 
 const FORGET_PASSWORD_PREFIX = 'forgotPassword';
+const SESSION_NAME = "sid";
 const saltRounds = 10;
 
-interface Session extends koa.Session {
-  id?: number
-}
-
 export type UserContext = {
-  ctx : Context,
-  session: Session
-  redis: redisStore.RedisSessionStore
+  ctx : Context;
+  session: Session;
+  redis: redisStore.RedisSessionStore;
 }
 
 @ObjectType()
@@ -54,7 +51,7 @@ class UserResponse {
 export class UserResolver {
   @FieldResolver(() => String)
   email(@Root() user: User, @Ctx() { ctx, session }: UserContext) {
-    if (session.id  === user.id) {
+    if (session.isNew && session.userId  === user.id) {
       return user.email;
     }
     return "";
@@ -62,13 +59,13 @@ export class UserResolver {
   // query profile
   @Query(() => User, { nullable: true })
   me(@Ctx() { ctx, session }: UserContext) {
-    console.log(session);
+    console.log(ctx.cookies.get('pom:sess'));
     // you are not logged in
-    if (!session.id) {
+    if (!session.userId) {
       return null;
     }
 
-    return User.findOne(session.id);
+    return User.findOne(session.userId);
   }
   // account register 
   @Mutation(() => UserResponse)
@@ -121,7 +118,8 @@ export class UserResolver {
     } 
     
     // console.log(ctx);
-    session.id = user.id;
+    session.userId = user.id;
+    session.save();
 
     return { user };
   }
@@ -146,7 +144,6 @@ export class UserResolver {
         ],
       };
     }
-    console.log(ctx.request.href);
     const valid = bcrypt.compareSync(password, user.password);
     if (!valid) { 
       return {
@@ -158,8 +155,7 @@ export class UserResolver {
         ],
       };
     }
-    // console.log(session)
-    session.id = user.id;
+    session.userId = user.id;
 
     return {
       user,
@@ -256,8 +252,22 @@ export class UserResolver {
     await redis.destroy(key);
 
     // log in user after change password
-    session.id = user.id;
+    session.userId = user.id;
 
     return { user };
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { ctx }: UserContext) {
+    return new Promise((resolve) =>
+      ctx.session?.destroy((err:any) => {
+        if (err) {
+          resolve(false);
+          return;
+        }
+
+        resolve(true);
+      })
+    );
   }
 }
