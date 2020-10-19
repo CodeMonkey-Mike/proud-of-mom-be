@@ -51,7 +51,7 @@ class UserResponse {
 export class UserResolver {
   @FieldResolver(() => String)
   email(@Root() user: User, @Ctx() { ctx, session }: UserContext) {
-    if (session.isNew && session.userId  === user.id) {
+    if (session.isNew) {
       return user.email;
     }
     return "";
@@ -59,14 +59,27 @@ export class UserResolver {
   // query profile
   @Query(() => User, { nullable: true })
   me(@Ctx() { ctx, session }: UserContext) {
-    console.log(ctx.cookies.get('pom:sess'));
     // you are not logged in
     if (!session.userId) {
       return null;
     }
 
-    return User.findOne(session.userId);
+    return User.findOne(session.userId); 
   }
+
+  // List all users
+  @Query(() => [User], { nullable: true })
+  async userList(): Promise<User[] | null> {
+    const users = await User.find(
+      {
+        where: {
+          role_id: 2
+        }
+      }
+    );
+    return users;
+  }
+
   // account register 
   @Mutation(() => UserResponse)
   async register(
@@ -127,14 +140,28 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg("usernameOrEmail") usernameOrEmail: string,
-    @Arg("password") password: string,    @Ctx() { ctx, redis, session }: UserContext
+    @Arg("password") password: string,
+    @Arg("role_id", { defaultValue: 2 }) role_id: number,
+    @Ctx() { ctx, redis, session }: UserContext
   ): Promise<UserResponse> {
     const user = await User.findOne(
       usernameOrEmail.includes("@")
-        ? { where: { email: usernameOrEmail } }
-        : { where: { username: usernameOrEmail } }
+        ? { where: { email: usernameOrEmail, role_id: role_id
+        } }
+        : { where: { username: usernameOrEmail, role_id: role_id
+        } }
     );
-    if (!user) { 
+    if(user && Number(user.role_id) !== role_id) {
+      return {
+        errors: [
+          {
+            field: "usernameOrEmail",
+            message: "Access denied.", 
+          },
+        ],
+      };
+    }
+    if (!user) {
       return {
         errors: [
           {

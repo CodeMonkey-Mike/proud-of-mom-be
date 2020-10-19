@@ -32,5 +32,22 @@ class MigrationUtil {
       type: 'varchar',
     };
   }
+
+  public static getIntColumn({
+    name = '',
+    isPrimary = false,
+    isNullable = false,
+    isUnique = false,
+    defaultValue = null,
+  }): TableColumnOptions {
+    return {
+      name,
+      isPrimary,
+      isNullable,
+      isUnique,
+      default: `'${defaultValue}'`,
+      type: 'integer',
+    };
+  }
 }
 export default MigrationUtil;
