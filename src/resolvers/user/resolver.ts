@@ -50,19 +50,14 @@ class UserResponse {
 @Resolver(User)
 export class UserResolver {
   @FieldResolver(() => String)
-  email(@Root() user: User, @Ctx() { ctx, session }: UserContext) {
-    if (session.isNew) {
-      return user.email;
-    }
-    return "";
-  }
   // query profile
   @Query(() => User, { nullable: true })
-  me(@Ctx() { ctx, session }: UserContext) {
+  me(@Ctx() { session }: UserContext) {
     // you are not logged in
     if (!session.userId) {
       return null;
     }
+    console.log(session.userId);
 
     return User.findOne(session.userId); 
   }
@@ -84,7 +79,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UsernamePasswordInput,
-    @Ctx() { ctx, session }: UserContext
+    @Ctx() { session }: UserContext
   ): Promise<UserResponse> {  
     let user;
     // validate user information are corect
@@ -141,8 +136,8 @@ export class UserResolver {
   async login(
     @Arg("usernameOrEmail") usernameOrEmail: string,
     @Arg("password") password: string,
-    @Arg("role_id", { defaultValue: 2 }) role_id: number,
-    @Ctx() { ctx, redis, session }: UserContext
+    @Arg("role_id", { defaultValue: 2 , nullable: true}) role_id: number,
+    @Ctx() { redis, session }: UserContext
   ): Promise<UserResponse> {
     const user = await User.findOne(
       usernameOrEmail.includes("@")
@@ -286,15 +281,10 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   logout(@Ctx() { ctx }: UserContext) {
-    return new Promise((resolve) =>
-      ctx.session?.destroy((err:any) => {
-        if (err) {
-          resolve(false);
-          return;
-        }
-
-        resolve(true);
-      })
+    return new Promise((resolve) => {
+      ctx.session = null;
+      resolve(true);
+    }
     );
   }
 }

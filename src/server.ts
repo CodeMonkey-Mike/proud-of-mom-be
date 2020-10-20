@@ -22,7 +22,6 @@ app.keys = [process.env.SESSION_SECRET||'qowiueojwojfalksdjoqiwueo'];
 // })
 const isProd = process.env.NODE_ENV === 'production' ? true : false;
 const SESSION_CONFIG:any = {
-  name: 'sid',
   key: 'pom:sess',
   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
   // store: redis,
@@ -46,7 +45,10 @@ const main = async () => {
     }); 
     
     // Enable cors with default options
-    app.use(cors());
+    const corsOptions = {
+      credentials: true
+    };
+    app.use(cors(corsOptions));
     // Enable logger
     // app.use(logger());
     app.use(session(SESSION_CONFIG, app));
