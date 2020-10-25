@@ -56,22 +56,15 @@ export class UserResolver {
     // you are not logged in
     if (!session.userId) {
       return null;
-    }
-    console.log(session.userId);
-
+    } 
+ 
     return User.findOne(session.userId); 
   }
 
   // List all users
   @Query(() => [User], { nullable: true })
   async userList(): Promise<User[] | null> {
-    const users = await User.find(
-      {
-        where: {
-          role_id: 2
-        }
-      }
-    );
+    const users = await User.find();
     return users;
   }
 
@@ -286,5 +279,32 @@ export class UserResolver {
       resolve(true);
     }
     );
+  }
+
+  @Mutation(()=>Boolean)
+  async delete(@Arg("email") email: string,@Ctx() { ctx }: UserContext) {
+    const user = await User.find({
+      where: {
+        email: email
+      }
+    })
+    await User.remove(user);
+    return true;
+  }
+
+  @Mutation(()=>UserResponse)
+  async updateRole(
+    @Arg("id") id: number,
+    @Arg("role_id") role_id: number) { 
+    await User.update(
+      { id: id },
+      { 
+        role_id: role_id === 1 ? 2 : 1
+      }
+    );
+    const user = await User.findOne(id);
+    return {
+      user,
+    };
   }
 }
