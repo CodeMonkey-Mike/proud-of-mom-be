@@ -293,16 +293,29 @@ export class UserResolver {
   }
 
   @Mutation(()=>UserResponse)
-  async updateRole(
+  async updateUser(
     @Arg("id") id: number,
-    @Arg("role_id") role_id: number) { 
-    await User.update(
+    @Arg("email", { nullable: true}) email: string,
+    @Arg("username", { nullable: true}) username: string,
+    @Arg("role_id", { nullable: true}) role_id: number) { 
+    if(role_id) {
+      await User.update(
       { id: id },
       { 
         role_id: role_id === 1 ? 2 : 1
       }
-    );
-    const user = await User.findOne(id);
+      );
+      
+    } else { 
+      await User.update(
+        { id: id },
+        { 
+          username: username,
+          email: email
+        }
+        ); 
+    } 
+    const user = await User.findOne(id) as UserResponse;
     return {
       user,
     };
