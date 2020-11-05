@@ -6,8 +6,7 @@ import {
   Field,
   Ctx,
   ObjectType,
-  FieldResolver,
-  Root,
+  FieldResolver, 
 } from "type-graphql";
 import UsernamePasswordInput from "./UsernamePasswordInput";
 import { getConnection } from "typeorm";
@@ -20,8 +19,7 @@ import { validateRegister } from "./validateRegister";
 import { sendEmail } from "../../utils/sendEmail";
 import User from "../../db/entities/user.entity";
 
-const FORGET_PASSWORD_PREFIX = 'forgotPassword';
-const SESSION_NAME = "sid";
+const FORGET_PASSWORD_PREFIX = 'forgotPassword';  
 const saltRounds = 10;
 
 export type UserContext = {
