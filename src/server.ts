@@ -11,7 +11,8 @@ import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user/resolver";
 import { createConnection } from "typeorm";
 import config from "./utils/ormconfig";
-import { logger } from "./utils/logger"; 
+// import { logger } from "./utils/logger"; 
+import { RoleResolver } from "./resolvers/role/resolver";
 
 const app = new Koa();
 const path = "/graphql";
@@ -41,7 +42,7 @@ const main = async () => {
     await connection.runMigrations();
     console.log("DB connecting!");
     const schema = await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [UserResolver, RoleResolver],
     }); 
     
     // Enable cors with default options
