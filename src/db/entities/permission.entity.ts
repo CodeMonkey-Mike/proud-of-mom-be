@@ -9,8 +9,8 @@ import {
 } from "typeorm";
 
 @ObjectType()
-@Entity({ name: "role" })
-export default class Role extends BaseEntity {
+@Entity({ name: "permission" })
+export default class Permission extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
@@ -18,10 +18,6 @@ export default class Role extends BaseEntity {
   @Field()
   @Column({ unique: true })
   name!: string;
-  
-  @Field(() => String)
-  @Column()
-  permission!: string;
 
   @Field(() => String)
   @CreateDateColumn()
