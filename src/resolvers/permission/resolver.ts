@@ -27,8 +27,8 @@ export class PermissionResolver {
   // List all roles
   @Query(() => [Permission], {nullable: true})
   async permissionList() : Promise < Permission[] | null > {
-      const roles = await Permission.find();
-      return roles;
+      const permissions = await Permission.find();
+      return permissions;
   }
 
   // create new Permission
