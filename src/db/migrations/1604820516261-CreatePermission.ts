@@ -1,27 +1,25 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 import MigrationUtil from '../../utils/migrationUtil';
 
-export class CreateRole1602947033659 implements MigrationInterface {
+export class CreatePermission1604820516261 implements MigrationInterface {
 
     private static readonly table = new Table({
-        name: 'role',
+        name: 'permission',
         columns: [
           ...MigrationUtil.getIDColumn(),
           MigrationUtil.getVarCharColumn({ name: 'name' }),
-          MigrationUtil.getVarCharColumn({ name: 'permission' }),
           { name: 'created_at', type: "timestamp with time zone", default: "timezone('utc'::text, now())"},
           { name: 'updated_at',type: "timestamp with time zone", default: "timezone('utc'::text, now())"},
         ],
       });
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.createTable(CreateRole1602947033659.table);
-        await queryRunner.query(`insert into role (name) values ('admin');insert into role (name) values ('user');`);
-        
+        await queryRunner.createTable(CreatePermission1604820516261.table);
+        await queryRunner.query(`insert into permission (name) values ('admin');`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropTable(CreateRole1602947033659.table);
+        await queryRunner.dropTable(CreatePermission1604820516261.table);
     }
 
 }

@@ -13,6 +13,7 @@ import { createConnection } from "typeorm";
 import config from "./utils/ormconfig";
 // import { logger } from "./utils/logger"; 
 import { RoleResolver } from "./resolvers/role/resolver";
+// import { PermissionResolver } from "./resolvers/permission/resolver";
 
 const app = new Koa();
 const path = "/graphql";
@@ -38,7 +39,7 @@ const SESSION_CONFIG:any = {
 const main = async () => { 
   try {
     const connection = await createConnection(config);
-    // await connection.dropDatabase(); // only test under local env
+    // await connection.dropDatabase(); // only test under local env 
     await connection.runMigrations();
     console.log("DB connecting!");
     const schema = await buildSchema({
