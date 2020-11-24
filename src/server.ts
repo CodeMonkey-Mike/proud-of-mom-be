@@ -13,6 +13,8 @@ import { createConnection } from "typeorm";
 import config from "./utils/ormconfig";
 // import { logger } from "./utils/logger"; 
 import { RoleResolver } from "./resolvers/role/resolver";
+import { graphqlUploadKoa } from "graphql-upload";
+import { MediaResolver } from "./resolvers/media/resolver";
 // import { PermissionResolver } from "./resolvers/permission/resolver";
 
 const app = new Koa();
@@ -43,7 +45,7 @@ const main = async () => {
     await connection.runMigrations();
     console.log("DB connecting!");
     const schema = await buildSchema({
-      resolvers: [UserResolver, RoleResolver],
+      resolvers: [UserResolver, RoleResolver, MediaResolver],
     }); 
     
     // Enable cors with default options
@@ -54,6 +56,7 @@ const main = async () => {
     // Enable logger
     // app.use(logger());
     app.use(session(SESSION_CONFIG, app));
+    
     const apolloServer = new ApolloServer({
       schema,
       introspection: true,
@@ -66,6 +69,7 @@ const main = async () => {
       }),
     });
     apolloServer.applyMiddleware({ app, path, bodyParserConfig: true });  
+    app.use(graphqlUploadKoa({ maxFileSize: 1000*5, maxFiles: 10 }));
     app.listen(PORT, () => { 
       const HOST = app.env === 'development' ? 'http://localhost' : 'http://www.proudofmom.com';
       console.log(`🚀 started ${HOST}:${PORT}${path}`);

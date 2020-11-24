@@ -28,7 +28,11 @@ export default class User extends BaseEntity {
   role_id!: number;
 
   @Column()
-  password!: string;
+  password!: string; 
+
+  @Field()
+  @Column()
+  profile_picture!: string;
 
   @Field(() => String)
   @CreateDateColumn()

@@ -9,6 +9,7 @@ export class CreateUserTable1598548264941 implements MigrationInterface {
       MigrationUtil.getVarCharColumn({ name: 'username' }),
       MigrationUtil.getVarCharColumn({ name: 'email' }),
       MigrationUtil.getIntColumn({ name: 'role_id' }),
+      MigrationUtil.getVarCharColumn({ name: 'profile_picture' }),
       MigrationUtil.getVarCharColumn({ name: 'password' }),
       { name: 'created_at', type: "timestamp with time zone", default: "timezone('utc'::text, now())"},
       { name: 'updated_at',type: "timestamp with time zone", default: "timezone('utc'::text, now())"},
