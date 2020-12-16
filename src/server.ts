@@ -1,17 +1,14 @@
 import "reflect-metadata";
 import dotenv from "dotenv";
 dotenv.config();
-import Koa, { Context } from "koa";
-// import session, { ContextSession } from "koa-session";
+import Koa, { Context } from "koa"; 
 import session from "koa-session";
-import cors from "@koa/cors";
-// import redisStore from "koa-redis";
+import cors from "@koa/cors"; 
 import { ApolloServer } from "apollo-server-koa";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user/resolver";
 import { createConnection } from "typeorm";
-import config from "./utils/ormconfig";
-// import { logger } from "./utils/logger"; 
+import config from "./utils/ormconfig"; 
 import { RoleResolver } from "./resolvers/role/resolver";
 import { graphqlUploadKoa } from "graphql-upload";
 import { MediaResolver } from "./resolvers/media/resolver";
@@ -20,15 +17,11 @@ import { MediaResolver } from "./resolvers/media/resolver";
 const app = new Koa();
 const path = "/graphql";
 const PORT = process.env.HTTP_PORT || 4000; 
-app.keys = [process.env.SESSION_SECRET||'qowiueojwojfalksdjoqiwueo'];
-// const redis = redisStore({
-//   url: process.env.REDIS_URL
-// })
+app.keys = [process.env.SESSION_SECRET||'qowiueojwojfalksdjoqiwueo']; 
 const isProd = process.env.NODE_ENV === 'production' ? true : false;
 const SESSION_CONFIG:any = {
   key: 'pom:sess',
-  maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  // store: redis,
+  maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days 
   overwrite: true, 
   autoCommit: true,
   httpOnly: isProd,
@@ -64,15 +57,13 @@ const main = async () => {
       tracing: true,
       context: ({ctx}: Context) => ({
         ctx,
-        session: ctx.session,
-        // redis
+        session: ctx.session, 
       }),
     });
     apolloServer.applyMiddleware({ app, path, bodyParserConfig: true });  
     app.use(graphqlUploadKoa({ maxFileSize: 1000*5, maxFiles: 10 }));
-    app.listen(PORT, () => { 
-      const HOST = app.env === 'development' ? 'http://localhost' : 'http://www.proudofmom.com';
-      console.log(`🚀 started ${HOST}:${PORT}${path}`);
+    app.listen(PORT, () => {
+      console.log(`🚀 started ${PORT}${path}`);
     });
   } catch (error) {
     console.log(error);

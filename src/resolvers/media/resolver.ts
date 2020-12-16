@@ -70,7 +70,7 @@ export class MediaResolver {
             {  
               profile_picture: file.filename
             }); 
-          resolve();
+          resolve(true);
         });
         
       });
