@@ -6,3 +6,5 @@ export const DATABASE = process.env.TYPEORM_DATABASE;
 export const ENTITIES = process.env.NODE_ENV === 'development' ? 'src/db/entities/*.entity{.ts,.js}' :  process.env.TYPEORM_ENTITIES;
 export const MIGRATIONS = process.env.NODE_ENV === 'development' ? 'src/db/migrations/*{.ts,.js}' : process.env.TYPEORM_MIGRATIONS;
 export const MIGRATIONS_DIR = process.env.TYPEORM_MIGRATIONS_DIR;
+export const ENTITIES_DIR = process.env.TYPEORM_ENTITIES_DIR;
+export const SEEDS = process.env.NODE_ENV === 'development' ? 'src/db/seeds/*{.ts,.js}' : process.env.TYPEORM_SEEDING_SEEDS;

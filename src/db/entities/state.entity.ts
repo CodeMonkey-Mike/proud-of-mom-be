@@ -9,30 +9,19 @@ import {
 } from "typeorm";
 
 @ObjectType()
-@Entity({ name: "user" })
-export default class User extends BaseEntity {
+@Entity({ name: "state" })
+export default class State extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Field()
-  @Column({ unique: true })
-  username!: string;
-
-  @Field()
-  @Column({ unique: true })
-  email!: string;
-  
-  @Field()
-  @Column()
-  role_id!: number;
-
-  @Column()
-  password!: string; 
+  id!: number; 
 
   @Field()
   @Column()
-  profile_picture!: string;
+  name!: string;
+
+  @Field(() => String)
+  @Column()
+  contry_id!: number;
 
   @Field(() => String)
   @CreateDateColumn()

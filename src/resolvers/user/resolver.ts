@@ -128,7 +128,7 @@ export class UserResolver {
     @Arg("usernameOrEmail") usernameOrEmail: string,
     @Arg("password") password: string,
     @Arg("role_id", { defaultValue: 2 , nullable: true}) role_id: number,
-    @Ctx() { redis, session }: UserContext
+    @Ctx() { session }: UserContext
   ): Promise<UserResponse> {
     const user = await User.findOne(
       usernameOrEmail.includes("@")

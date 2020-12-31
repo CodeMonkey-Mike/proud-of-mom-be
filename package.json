@@ -14,14 +14,21 @@
     "format:fix": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,htm,html}'",
     "lint": "eslint src/ --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint src/ --ext .ts,.tsx,.js,.jsx --fix",
-    "typeorm:cli": "ts-node ./node_modules/typeorm/cli -f ./src/utils/ormconfig.ts"
+    "typeorm:cli": "ts-node ./node_modules/typeorm/cli -f ./src/utils/ormconfig.ts",
+    "schema:drop": "ts-node ./node_modules/typeorm/cli.js schema:drop",
+    "schema:sync": "ts-node ./node_modules/typeorm/cli.js schema:sync"
   },
   "license": "ISC",
+  "resolutions": {
+    "graphql-upload": "^11.0.0"
+  },
   "dependencies": {
+    "@google-cloud/storage": "^5.5.0",
     "apollo-server-koa": "^2.16.1",
     "class-validator": "^0.12.2",
     "dotenv": "^8.2.0",
     "graphql": "^15.3.0",
+    "graphql-upload": "^11.0.0",
     "jest": "^26.4.2",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.0",
