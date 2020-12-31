@@ -27,5 +27,5 @@
       "baseUrl": "."
    },
    "exclude": ["node_modules"],
-   "include": ["./src/**/*.ts", "src/utils/ggcloud-storage-config.js"]
+   "include": ["./src/**/*.ts"]
 }
