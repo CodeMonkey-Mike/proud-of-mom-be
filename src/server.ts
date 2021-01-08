@@ -24,11 +24,12 @@ const SESSION_CONFIG:any = {
   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days 
   overwrite: true, 
   autoCommit: true,
-  httpOnly: isProd,
+  httpOnly: !isProd,
   signed: true, 
   rolling: true,
   renew: false,
   secure: isProd,
+  domain: isProd ? process.env.DOMAIN || '.proudofmom.com' : 'localhost'
 };
 
 const main = async () => { 
@@ -46,14 +47,12 @@ const main = async () => {
       credentials: true
     };
     app.use(cors(corsOptions));
-    // Enable logger
-    // app.use(logger());
     app.use(session(SESSION_CONFIG, app));
     
     const apolloServer = new ApolloServer({
       schema,
       introspection: true,
-      playground: true,
+      playground: !isProd,
       tracing: true,
       context: ({ctx}: Context) => ({
         ctx,

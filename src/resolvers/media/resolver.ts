@@ -10,6 +10,7 @@ import { getConnection, Repository } from 'typeorm';
  
 import { getPublicUrl } from '../../utils/getPuclicUrl'; 
 import User from '../../db/entities/user.entity';
+import Profile from '../../db/entities/profile.entity';
 
 const pathFile = path.join(__dirname, '../../../', process.env.GCL_STORAGE_PATH || ''); 
 
@@ -36,7 +37,7 @@ export class MediaResolver {
   async upload(
     @Arg('file', type => GraphQLUpload) file: FileUpload, 
     @Arg("email") email: string,): Promise<any> {
-    const { createReadStream, filename, mimetype , encoding } = await file;
+    const { createReadStream, mimetype , encoding } = await file;
     const stream = createReadStream(); 
     console.log('rrot', path.resolve(__dirname))
     const storage = new Storage({
@@ -61,16 +62,31 @@ export class MediaResolver {
         public: true 
       });
          // When the upload is fully written, resolve the promise.
-      writeStream.on('finish', () => {
+      writeStream.on('finish', async () => {
         return fileUpload.makePublic()
-        .then( () => {
+        .then( async() => {
           file.filename = getPublicUrl(bucketName, gcsFileName);
-          getConnection().getRepository(User).update(
-            { email: email },
-            {  
-              profile_picture: file.filename
-            }); 
-          resolve(true);
+          const user = await User.findOne({ where: { email: email} }); 
+          if(user) {
+            const profile = await Profile.findOne({ where: { user_id: user.id} });
+            if(profile) {
+              await Profile.update(
+                { user_id: user.id},
+                { 
+                  picture: file.filename
+                }
+                ); 
+            } else {
+              getConnection()
+              .createQueryBuilder()
+              .insert()
+              .into(Profile)
+              .values({ user_id: user.id , picture: file.filename})
+              .execute();
+            } 
+              resolve(true);
+          } 
+          reject();
         });
         
       });

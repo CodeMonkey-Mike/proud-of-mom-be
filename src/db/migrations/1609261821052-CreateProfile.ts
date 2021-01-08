@@ -7,13 +7,14 @@ export class CreateProfile1609261821052 implements MigrationInterface {
         name: 'profile',
         columns: [
           ...MigrationUtil.getIDColumn(),
-          MigrationUtil.getVarCharColumn({ name: 'picture' }),
-          MigrationUtil.getVarCharColumn({ name: 'address1' }),
-          MigrationUtil.getVarCharColumn({ name: 'address2' }),
-          MigrationUtil.getVarCharColumn({ name: 'state_province' }),
-          MigrationUtil.getIntColumn({ name: 'country' }),
-          MigrationUtil.getVarCharColumn({ name: 'postal_code' }),
+          MigrationUtil.getVarCharColumn({ name: 'picture', isNullable: true }),
+          MigrationUtil.getVarCharColumn({ name: 'address1' , isNullable: true}),
+          MigrationUtil.getVarCharColumn({ name: 'address2' , isNullable: true}),
+          MigrationUtil.getVarCharColumn({ name: 'state_province' , isNullable: true}),
+          MigrationUtil.getIntColumn({ name: 'country' ,isNullable: true}),
+          MigrationUtil.getVarCharColumn({ name: 'postal_code' ,isNullable: true}),
           MigrationUtil.getVarCharColumn({ name: 'gender'}),
+          MigrationUtil.getIntColumn({ name: 'user_id' }),
           { name: 'created_at', type: "timestamp with time zone", default: "timezone('utc'::text, now())"},
           { name: 'updated_at',type: "timestamp with time zone", default: "timezone('utc'::text, now())"},
         ],
@@ -21,6 +22,11 @@ export class CreateProfile1609261821052 implements MigrationInterface {
             {
               columnNames: ['country'], 
               referencedTableName: 'country',
+              referencedColumnNames: ['id'],
+            },
+            {
+              columnNames: ['user_id'], 
+              referencedTableName: 'user',
               referencedColumnNames: ['id'],
             }
           ],

@@ -9,7 +9,7 @@ import {
   FieldResolver, 
 } from "type-graphql";
 import UsernamePasswordInput from "./UsernamePasswordInput";
-import { getConnection } from "typeorm";
+import { createQueryBuilder, getConnection } from "typeorm";
 import bcrypt from "bcrypt";
 import { Context } from "koa";
 import redisStore from "koa-redis";
@@ -17,7 +17,8 @@ import { Session } from "koa-session";
 import {v4} from "uuid";
 import { validateRegister } from "./validateRegister"; 
 import { sendEmail } from "../../utils/sendEmail";
-import User from "../../db/entities/user.entity";
+import User, { STATUSS } from "../../db/entities/user.entity";
+import Profile from "../../db/entities/profile.entity";
 
 const FORGET_PASSWORD_PREFIX = 'forgotPassword';  
 const saltRounds = 10;
@@ -50,13 +51,19 @@ export class UserResolver {
   @FieldResolver(() => String)
   // query profile
   @Query(() => User, { nullable: true })
-  me(@Ctx() { session }: UserContext) {
+  async me(@Ctx() { session }: UserContext) {
     // you are not logged in
     if (!session.userId) {
       return null;
-    } 
- 
-    return User.findOne(session.userId); 
+    }   
+    const user = await createQueryBuilder(User, "user") 
+    .leftJoinAndSelect("user.info", "profile")
+    .where("user.id = :id" , {
+      id: session.userId
+    })
+    .getOne();
+
+    return user;
   }
 
   // List all users
@@ -106,6 +113,7 @@ export class UserResolver {
             email: options.email,
             role_id: 2,
             password: hashedPassword,
+            user_status_id: STATUSS.ACTIVE,
           })
           .returning("*")
           .execute();

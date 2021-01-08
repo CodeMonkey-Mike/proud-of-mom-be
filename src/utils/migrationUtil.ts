@@ -37,7 +37,7 @@ class MigrationUtil {
     name = '',
     isPrimary = false,
     isNullable = false,
-    isUnique = false,
+    isUnique = false
   }): TableColumnOptions {
     return {
       name,
