@@ -17,8 +17,7 @@ import { Session } from "koa-session";
 import {v4} from "uuid";
 import { validateRegister } from "./validateRegister"; 
 import { sendEmail } from "../../utils/sendEmail";
-import User, { STATUSS } from "../../db/entities/user.entity";
-import Profile from "../../db/entities/profile.entity";
+import User, { STATUSS } from "../../db/entities/user.entity"; 
 
 const FORGET_PASSWORD_PREFIX = 'forgotPassword';  
 const saltRounds = 10;

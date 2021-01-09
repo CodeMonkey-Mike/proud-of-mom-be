@@ -8,7 +8,7 @@ export class CreateCountry1587548264941 implements MigrationInterface {
         name: 'country',
         columns: [
           ...MigrationUtil.getIDColumn(),
-          MigrationUtil.getVarCharColumn({ name: 'code' }),
+          MigrationUtil.getVarCharColumn({ name: 'code', isUnique: true }),
           MigrationUtil.getVarCharColumn({ name: 'name' }),
           { name: 'created_at', type: "timestamp with time zone", default: "timezone('utc'::text, now())"},
           { name: 'updated_at',type: "timestamp with time zone", default: "timezone('utc'::text, now())"},

@@ -12,6 +12,8 @@ import config from "./utils/ormconfig";
 import { RoleResolver } from "./resolvers/role/resolver";
 import { graphqlUploadKoa } from "graphql-upload";
 import { MediaResolver } from "./resolvers/media/resolver";
+import { CountryResolver } from "./resolvers/country/resolver";
+import { ProfileResolver } from "./resolvers/profile/resolver";
 // import { PermissionResolver } from "./resolvers/permission/resolver";
 
 const app = new Koa();
@@ -39,7 +41,7 @@ const main = async () => {
     await connection.runMigrations();
     console.log("DB connecting!");
     const schema = await buildSchema({
-      resolvers: [UserResolver, RoleResolver, MediaResolver],
+      resolvers: [UserResolver, RoleResolver, MediaResolver, CountryResolver, ProfileResolver],
     }); 
     
     // Enable cors with default options

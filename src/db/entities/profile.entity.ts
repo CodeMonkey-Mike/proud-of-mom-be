@@ -41,7 +41,7 @@ export default class Profile extends BaseEntity {
 
   @Field()
   @Column()
-  country!: number;
+  country!: string;
   
   @Field()
   @Column()
