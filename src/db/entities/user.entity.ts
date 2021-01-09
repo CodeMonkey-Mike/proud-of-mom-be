@@ -6,8 +6,14 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
 } from "typeorm";
+import Profile from "./profile.entity";
 
+export enum STATUSS {
+  ACTIVE = 1,
+  BANNED = 0
+}
 @ObjectType()
 @Entity({ name: "user" })
 export default class User extends BaseEntity {
@@ -22,17 +28,25 @@ export default class User extends BaseEntity {
   @Field()
   @Column({ unique: true })
   email!: string;
+
+  @OneToOne(type => Profile, profile => profile.user)
+  @Field({ nullable: true})
+  info: Profile;
   
   @Field()
   @Column()
   role_id!: number;
 
   @Column()
-  password!: string; 
+  password!: string;
 
   @Field()
-  @Column()
-  profile_picture!: string;
+  @Column({
+    type: "enum",
+    enum: STATUSS,
+    default: STATUSS.ACTIVE
+  })
+  user_status_id: STATUSS;
 
   @Field(() => String)
   @CreateDateColumn()
