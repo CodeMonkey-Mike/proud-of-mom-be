@@ -11,7 +11,7 @@ export class CreateProfile1609261821052 implements MigrationInterface {
           MigrationUtil.getVarCharColumn({ name: 'address1' , isNullable: true}),
           MigrationUtil.getVarCharColumn({ name: 'address2' , isNullable: true}),
           MigrationUtil.getVarCharColumn({ name: 'state_province' , isNullable: true}),
-          MigrationUtil.getIntColumn({ name: 'country' ,isNullable: true}),
+          MigrationUtil.getVarCharColumn({ name: 'country' , defaultValue: 'US'}),
           MigrationUtil.getVarCharColumn({ name: 'postal_code' ,isNullable: true}),
           MigrationUtil.getVarCharColumn({ name: 'gender'}),
           MigrationUtil.getIntColumn({ name: 'user_id' }),
@@ -22,7 +22,7 @@ export class CreateProfile1609261821052 implements MigrationInterface {
             {
               columnNames: ['country'], 
               referencedTableName: 'country',
-              referencedColumnNames: ['id'],
+              referencedColumnNames: ['code'],
             },
             {
               columnNames: ['user_id'], 

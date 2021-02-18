@@ -20,7 +20,7 @@ class MigrationUtil {
     isPrimary = false,
     isNullable = false,
     isUnique = false,
-    defaultValue = null,
+    defaultValue = '',
   }): TableColumnOptions {
     return {
       name,
@@ -28,7 +28,7 @@ class MigrationUtil {
       isPrimary,
       isNullable,
       isUnique,
-      default: `'${defaultValue}'`,
+      default: `'${defaultValue || null}'`,
       type: 'varchar',
     };
   }
