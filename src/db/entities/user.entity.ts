@@ -30,12 +30,12 @@ export default class User extends BaseEntity {
   email!: string;
 
   @OneToOne(type => Profile, profile => profile.user)
-  @Field({ nullable: true})
+  @Field(() => Profile, { nullable: true})
   info: Profile;
   
   @Field()
   @Column()
-  role_id!: number;
+  role_id!: number; 
 
   @Column()
   password!: string;

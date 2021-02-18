@@ -21,20 +21,21 @@ const path = "/graphql";
 const PORT = process.env.HTTP_PORT || 4000; 
 app.keys = [process.env.SESSION_SECRET||'qowiueojwojfalksdjoqiwueo']; 
 const isProd = process.env.NODE_ENV === 'production' ? true : false;
+app.proxy = true;
 const SESSION_CONFIG:any = {
   key: 'pom:sess',
   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days 
   overwrite: true, 
   autoCommit: true,
   httpOnly: !isProd,
-  signed: true, 
+  signed: true,  
   rolling: true,
   renew: false,
   secure: isProd,
   domain: isProd ? process.env.DOMAIN || '.proudofmom.com' : 'localhost'
 };
 
-const main = async () => { 
+const main = async () => {
   try {
     const connection = await createConnection(config);
     // await connection.dropDatabase(); // only test under local env 
