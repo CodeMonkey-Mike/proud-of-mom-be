@@ -1,0 +1,161 @@
+version: 2.1
+machine: &machine
+  machine:
+      image: ubuntu-1604:202004-01
+
+jobs:
+  dep:
+    <<: *machine
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - node_modules-{{ checksum "package.json" }}
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - save_cache:
+          key: node_modules-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+  check:
+    <<: *machine
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - node_modules-{{ checksum "package.json" }}
+      - run:
+          name: Lint 
+          command: npm run lint
+      - run:
+          name: Test 
+          command: npm run test
+  deploy_dev_staging:
+     <<: *machine
+     steps:
+      - checkout
+      - run:
+          name: Install OpenVPN
+          command: |
+            wget -O - https://swupdate.openvpn.net/repos/repo-public.gpg | sudo apt-key add -
+            echo "deb http://build.openvpn.net/debian/openvpn/release/2.5 xenial main" | sudo tee -a /etc/apt/sources.list.d/openvpn-aptrepo.list
+            sudo apt-get update
+            sudo apt-get install openvpn
+      - run:
+          name: VPN Setup
+          background: true
+          command: |
+            phone_home=$(netstat -an | grep ':22 .*ESTABLISHED' | head -n1 | awk '{ split($5, a, ":"); print a[1] }') 
+            echo $phone_home
+
+            echo $VPN_STAGING | base64 --decode > /tmp/config.ovpn
+            printf "dominitech\n$VPN_PASSWORD" > /tmp/vpn.login
+            sudo openvpn --config /tmp/config.ovpn --auth-user-pass /tmp/vpn.login \
+              --route $phone_home 255.255.255.255 net_gateway \
+              --route 169.254.0.0 255.255.0.0 net_gateway
+      - run:
+          name: Wait for the connection to be established
+          command: sleep 30
+      - run:
+          name: Install sshpass
+          command: |
+            sudo apt-get update
+            sudo apt-get install sshpass
+      - run:
+          name: Deploy Over SSH
+          command: |
+            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+              /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proud-of-mom-be && git checkout master && git pull origin master && node ./scripts/release/deploy_dev.js $CIRCLE_SHA1 $CIRCLE_PULL_REQUEST $VPN_PASSWORD $TYPEORM_DATABASE $TYPEORM_USERNAME $TYPEORM_PASSWORD"
+            else
+              /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proud-of-mom-be && git checkout master && git pull origin master && node ./scripts/release/deploy_staging.js $VPN_PASSWORD $AUTH_TOKEN $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME $CIRCLE_BUILD_NUM"
+            fi
+             
+      - run:
+          name: Disconnect from OpenVPN
+          command: sudo killall openvpn || true
+          when: always
+      - run:
+          name: remove OpenVPN config
+          command: |
+            sudo rm /tmp/config.ovpn
+            sudo rm /tmp/vpn.login
+  deploy_prod:
+     <<: *machine
+     steps:
+      - checkout
+      - run:
+          name: Install OpenVPN
+          command: |
+            wget -O - https://swupdate.openvpn.net/repos/repo-public.gpg | sudo apt-key add -
+            echo "deb http://build.openvpn.net/debian/openvpn/release/2.5 xenial main" | sudo tee -a /etc/apt/sources.list.d/openvpn-aptrepo.list
+            sudo apt-get update
+            sudo apt-get install openvpn
+      - run:
+          name: VPN Setup
+          background: true
+          command: |
+            phone_home=$(netstat -an | grep ':22 .*ESTABLISHED' | head -n1 | awk '{ split($5, a, ":"); print a[1] }') 
+            echo $phone_home
+
+            echo $VPN_PROD | base64 --decode > /tmp/config.ovpn
+            printf "dominitech\n$VPN_PASSWORD" > /tmp/vpn.login
+            sudo openvpn --config /tmp/config.ovpn --auth-user-pass /tmp/vpn.login \
+              --route $phone_home 255.255.255.255 net_gateway \
+              --route 169.254.0.0 255.255.0.0 net_gateway
+      - run:
+          name: Wait for the connection to be established
+          command: sleep 30
+      - run:
+          name: Install sshpass
+          command: |
+            sudo apt-get update
+            sudo apt-get install sshpass
+      - run:
+          name: Deploy Over SSH
+          command: |
+            /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proud-of-mom-be && git checkout master && git pull origin master && node ./scripts/release/deploy_prod.js $VPN_PASSWORD $CIRCLE_TAG"
+      - run:
+          name: Disconnect from OpenVPN
+          command: sudo killall openvpn || true
+          when: always
+      - run:
+          name: remove OpenVPN config
+          command: |
+            sudo rm /tmp/config.ovpn
+            sudo rm /tmp/vpn.login
+workflows:
+   version: 2
+   build-and-deploy:
+     jobs: 
+       - dep:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+       - check:
+          requires:
+          - dep
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              ignore: /.*/
+       - deploy_dev_staging:
+          requires:
+          - dep
+          - check
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              ignore: /.*/
+       - deploy_prod:
+          requires:
+            - dep
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
