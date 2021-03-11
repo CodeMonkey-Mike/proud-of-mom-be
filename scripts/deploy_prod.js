@@ -31,17 +31,7 @@ const main = async () => {
     }
     await exec('npm run build');
     
-    console.log('Build successful');
-
-    // read/process package.json
-    const packageJson = 'package.json';
-    const pkg = JSON.parse(fs.readFileSync(packageJson).toString());
-
-    // at this point you should have access to your ENV vars
-    pkg.scripts.start = `next start -p ${PORT}`;
-
-    // the 2 enables pretty-printing and defines the number of spaces to use
-    fs.writeFileSync(packageJson, JSON.stringify(pkg, null, 2));
+    console.log('Build successful'); 
 
     // copy resource to serve folder
     await exec(`echo '${SUDO_PASSWORD}' | sudo -S cp ${SERVED_FOLDER}/package.json /var/www/${SITE_URL}`);
