@@ -72,7 +72,7 @@ const main = async () => {
           TYPEORM_ENTITIES_DIR : 'dist/db/entities',
           TYPEORM_SEEDING_SEEDS : 'dist/db/seeds/*{.ts,.js}',
           HTTP_PORT : '${port}',
-          DOMAIN : '${SITE_URL}-api.${SITE_ORIGIN_DOMAIN}',
+          DOMAIN : '${SITE_URL}-stage.${SITE_ORIGIN_DOMAIN}',
           GCL_STORAGE_PATH :  'rock-fountain-288922-9b7e8d07849d.json'
         }
       }]
@@ -97,7 +97,7 @@ const main = async () => {
       server {
         listen  80;
 
-        server_name ${SITE_URL}-api.${SITE_ORIGIN_DOMAIN};
+        server_name ${SITE_URL}-stage.${SITE_ORIGIN_DOMAIN};
 
         location / {
                 proxy_pass http://127.0.0.1:${PREFIX}${CIRCLE_PULL_REQUEST};
@@ -111,16 +111,16 @@ const main = async () => {
         }
       }`;
       
-      console.log(`Creating virtual host: ${SITE_URL}-api.${SITE_ORIGIN_DOMAIN}`);
-      if(existsSync(`/etc/nginx/sites-available/${SITE_URL}-api.${SITE_ORIGIN_DOMAIN}`)) {
+      console.log(`Creating virtual host: ${SITE_URL}-stage.${SITE_ORIGIN_DOMAIN}`);
+      if(existsSync(`/etc/nginx/sites-available/${SITE_URL}-stage.${SITE_ORIGIN_DOMAIN}`)) {
         console.log('Removing existed nginx file.');
-        await exec(`echo '${SUDO_PASSWORD}' | sudo -S rm /etc/nginx/sites-available/${SITE_URL}-api.${SITE_ORIGIN_DOMAIN}`);
+        await exec(`echo '${SUDO_PASSWORD}' | sudo -S rm /etc/nginx/sites-available/${SITE_URL}-stage.${SITE_ORIGIN_DOMAIN}`);
       } 
-      if(existsSync(`/etc/nginx/sites-enabled/${SITE_URL}-api.${SITE_ORIGIN_DOMAIN}`)) {
+      if(existsSync(`/etc/nginx/sites-enabled/${SITE_URL}-stage.${SITE_ORIGIN_DOMAIN}`)) {
         console.log('Removing existed sites-enabled nginx file.');
-        await exec(`echo '${SUDO_PASSWORD}' | sudo -S rm /etc/nginx/sites-enabled/${SITE_URL}-api.${SITE_ORIGIN_DOMAIN}`);
+        await exec(`echo '${SUDO_PASSWORD}' | sudo -S rm /etc/nginx/sites-enabled/${SITE_URL}-stage.${SITE_ORIGIN_DOMAIN}`);
       } 
-      const NGINX_FILE =  `${SITE_URL}-api.${SITE_ORIGIN_DOMAIN}`;
+      const NGINX_FILE =  `${SITE_URL}-stage.${SITE_ORIGIN_DOMAIN}`;
       fs.writeFile(`${NGINX_FILE}`, vh, 'utf8', (err) => {
         if (err) throw err;
         console.log('The virtual host file has been saved!');
