@@ -1,4 +1,5 @@
 import { TableColumnOptions } from 'typeorm/schema-builder/options/TableColumnOptions';
+
 class MigrationUtil {
   public static getIDColumn(): TableColumnOptions[] {
     const columns: TableColumnOptions[] = [];
