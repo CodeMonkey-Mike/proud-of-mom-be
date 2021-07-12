@@ -8,14 +8,16 @@ jobs:
     <<: *machine
     steps:
       - checkout
-      - restore_cache:
-          keys:
-          - node_modules-{{ checksum "package.json" }}
+      - run:
+          name: Install Yarn
+          command: |
+            curl -o- -L https://yarnpkg.com/install.sh | bash
+            echo 'export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"' >> $BASH_ENV
       - run:
           name: Install Dependencies
-          command: npm install
+          command: yarn install
       - save_cache:
-          key: node_modules-{{ checksum "package.json" }}
+          key: yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
   check:
@@ -24,7 +26,9 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - node_modules-{{ checksum "package.json" }}
+          - yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          - yarn-deps-{{ .Branch }}-
+          - yarn-deps-
       - run:
           name: Lint 
           command: npm run lint
@@ -35,6 +39,11 @@ jobs:
      <<: *machine
      steps:
       - checkout
+      - restore_cache:
+          keys:
+          - yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          - yarn-deps-{{ .Branch }}-
+          - yarn-deps-
       - run:
           name: Install OpenVPN
           command: |
@@ -63,12 +72,38 @@ jobs:
             sudo apt-get update
             sudo apt-get install sshpass
       - run:
-          name: Deploy Over SSH
+          name: Build
+          command: npm run build
+      - run:
+          name: Zip node pkgs
+          command: |
+            zip -r dist.zip dist
+            zip -r --symlinks node_modules.zip node_modules
+      - run:
+          name: Copy resources to server
           command: |
             if [ -n "$CIRCLE_PULL_REQUEST" ]; then
-              /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proud-of-mom-be && git checkout master && git pull origin master && node ./scripts/deploy_dev.js $CIRCLE_SHA1 $CIRCLE_PULL_REQUEST $VPN_PASSWORD $TYPEORM_DATABASE $TYPEORM_USERNAME $TYPEORM_PASSWORD"
+              CI_PR=$( echo $CIRCLE_PULL_REQUEST | rev | cut -d '/' -f1 | rev )
+              /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "mkdir -p workspace/proudofmom.com/proudofmom-be/$CI_PR"
+              /usr/bin/sshpass -p "$VPN_PASSWORD" scp node_modules.zip $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be/$CI_PR
+              /usr/bin/sshpass -p "$VPN_PASSWORD" scp package.json $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be/$CI_PR
+              /usr/bin/sshpass -p "$VPN_PASSWORD" scp dist.zip $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be/$CI_PR
+              /usr/bin/sshpass -p "$VPN_PASSWORD" scp -r scripts $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be/$CI_PR
             else
-              /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proud-of-mom-be && git checkout master && git pull origin master && node ./scripts/deploy_staging.js $VPN_PASSWORD $AUTH_TOKEN $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME $CIRCLE_BUILD_NUM"
+              /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "mkdir -p workspace/proudofmom.com/proudofmom-be/master"
+              /usr/bin/sshpass -p "$VPN_PASSWORD" scp node_modules.zip $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be/master
+              /usr/bin/sshpass -p "$VPN_PASSWORD" scp package.json $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be/master
+              /usr/bin/sshpass -p "$VPN_PASSWORD" scp dist.zip $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be/master
+              /usr/bin/sshpass -p "$VPN_PASSWORD" scp -r scripts $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be/master
+            fi
+      - run:
+          name: Start PM2
+          command: |
+            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+              CI_PR=$( echo $CIRCLE_PULL_REQUEST | rev | cut -d '/' -f1 | rev )
+              /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proudofmom-be/$CI_PR && node ./scripts/deploy_dev.js $CIRCLE_SHA1 $CIRCLE_PULL_REQUEST $VPN_PASSWORD $TYPEORM_DATABASE $TYPEORM_USERNAME $TYPEORM_PASSWORD"
+            else
+              /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proudofmom-be/master && unzip -qq node_modules.zip -d ~/workspace/proudofmom.com/proudofmom-be/master && node ./scripts/deploy_staging.js $VPN_PASSWORD $AUTH_TOKEN $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME $CIRCLE_BUILD_NUM"
             fi
              
       - run:
@@ -84,6 +119,11 @@ jobs:
      <<: *machine
      steps:
       - checkout
+      - restore_cache:
+          keys:
+          - yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          - yarn-deps-{{ .Branch }}-
+          - yarn-deps-
       - run:
           name: Install OpenVPN
           command: |
@@ -112,9 +152,24 @@ jobs:
             sudo apt-get update
             sudo apt-get install sshpass
       - run:
-          name: Deploy Over SSH
+          name: Build
+          command: npm run build
+      - run:
+          name: Zip node pkgs
           command: |
-            /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proud-of-mom-be && git checkout master && git pull origin master && node ./scripts/deploy_prod.js $VPN_PASSWORD $CIRCLE_TAG"
+            zip -r dist.zip dist
+            zip -r --symlinks node_modules.zip node_modules
+      - run:
+          name: Copy resources to server
+          command: |
+            /usr/bin/sshpass -p "$VPN_PASSWORD" scp node_modules.zip $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be
+            /usr/bin/sshpass -p "$VPN_PASSWORD" scp package.json $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be
+            /usr/bin/sshpass -p "$VPN_PASSWORD" scp dist.zip $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be
+            /usr/bin/sshpass -p "$VPN_PASSWORD" scp -r scripts $SSH_USER@$SSH_HOST:/home/dominitech/workspace/proudofmom.com/proudofmom-be
+      - run:
+          name: Deploy Production
+          command: |
+            /usr/bin/sshpass -p "$VPN_PASSWORD" ssh $SSH_USER@$SSH_HOST "cd workspace/proudofmom.com/proudofmom-be && node ./scripts/deploy_prod.js $VPN_PASSWORD $CIRCLE_TAG"
       - run:
           name: Disconnect from OpenVPN
           command: sudo killall openvpn || true

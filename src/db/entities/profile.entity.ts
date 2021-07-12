@@ -51,7 +51,7 @@ export default class Profile extends BaseEntity {
   @Column()
   user_id!: number;
 
-  @OneToOne(type => User, user => user.info)
+  @OneToOne(() => User, user => user.info)
   @JoinColumn({ name: 'user_id' })
   user: User;
   
