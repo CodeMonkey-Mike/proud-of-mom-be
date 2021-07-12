@@ -1,6 +1,11 @@
 import "reflect-metadata";
 import dotenv from "dotenv";
+
 dotenv.config();
+import processEnv from "./env";
+
+processEnv();
+
 import Koa, { Context } from "koa"; 
 import session from "koa-session";
 import cors from "@koa/cors"; 

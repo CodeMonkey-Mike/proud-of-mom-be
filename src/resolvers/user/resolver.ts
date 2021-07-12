@@ -204,7 +204,7 @@ export class UserResolver {
       }
     ); // 1 days expire 
     const userId = await redis.get(FORGET_PASSWORD_PREFIX + token, 1000 * 60 * 60 * 24 * 1, {rolling:true});
-    // console.log('client_id', userId);
+    console.log('client_id', userId);
     try {
       await sendEmail(
         email,
