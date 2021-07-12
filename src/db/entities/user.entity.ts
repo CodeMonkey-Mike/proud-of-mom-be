@@ -29,7 +29,7 @@ export default class User extends BaseEntity {
   @Column({ unique: true })
   email!: string;
 
-  @OneToOne(type => Profile, profile => profile.user)
+  @OneToOne(() => Profile, profile => profile.user)
   @Field(() => Profile, { nullable: true})
   info: Profile;
   
